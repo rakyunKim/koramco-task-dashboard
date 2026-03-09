@@ -1,0 +1,12 @@
+<div class="animate-fade-in-up lg:max-w-lg lg:mx-auto">
+  <h1 class="text-xl font-extrabold mb-6">선행지표 수정</h1>
+  <%= render "form", wig: @wig, lead_measure: @lead_measure %>
+
+  <div class="mt-6 pt-6 border-t border-slate-800/40">
+    <%= button_to wig_lead_measure_path(@wig, @lead_measure), method: :delete,
+        class: "text-sm text-rose-500 hover:text-rose-400 font-semibold transition-colors",
+        data: { turbo_confirm: "정말 삭제하시겠습니까? 연결된 모든 작업도 삭제됩니다." } do %>
+      선행지표 삭제
+    <% end %>
+  </div>
+</div>

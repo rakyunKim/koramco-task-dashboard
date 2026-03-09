@@ -1,0 +1,162 @@
+<turbo-frame id="modal">
+  <div data-controller="modal" data-action="keydown@window->modal#closeWithKeyboard">
+    <!-- Backdrop -->
+    <div data-modal-target="backdrop" data-action="click->modal#backdropClose"
+         class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm transition-opacity duration-200 opacity-0
+                flex items-end lg:items-center lg:justify-center">
+
+      <!-- Panel: bottom-sheet on mobile, centered modal on desktop -->
+      <div data-modal-target="panel"
+           class="w-full max-h-[85vh] lg:max-h-[80vh] lg:max-w-lg lg:w-full
+                  bg-[#111a2e] border-t border-[#1e2d4a] lg:border lg:rounded-2xl
+                  rounded-t-2xl lg:rounded-2xl
+                  shadow-2xl shadow-black/40
+                  flex flex-col
+                  translate-y-full lg:translate-y-full lg:scale-95 lg:opacity-0
+                  transition-all duration-200 ease-out">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-[#1e2d4a]/60 shrink-0">
+          <div>
+            <h2 class="text-base font-extrabold text-white">이전 작업 가져오기</h2>
+            <% if @member %>
+              <p class="text-[12px] text-[#5d6d8e] mt-0.5"><%= @member.name %>님의 이전 작업</p>
+            <% end %>
+          </div>
+          <button data-action="modal#close" class="p-2 -mr-2 text-[#5d6d8e] hover:text-[#8896b3] transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-5">
+
+          <!-- Member Selection -->
+          <div>
+            <label class="block text-[11px] font-semibold text-[#5d6d8e] uppercase tracking-wider mb-2">멤버</label>
+            <% if @members.any? %>
+              <div class="flex flex-wrap gap-1.5">
+                <% @members.each do |member| %>
+                  <% active = @member&.id == member.id %>
+                  <a href="<%= import_tasks_path(member_id: member.id) %>"
+                     data-turbo-frame="modal"
+                     class="inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-[13px] font-semibold transition-all
+                            <%= active ?
+                              'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30' :
+                              'bg-[#0e1525] text-[#8896b3] border border-[#1e2d4a] hover:border-[#2a3d5e] hover:text-[#c5cfe0]' %>">
+                    <div class="w-5 h-5 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+                      <span class="text-[9px] font-bold text-white"><%= member.name.first %></span>
+                    </div>
+                    <%= member.name %>
+                  </a>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="text-sm text-[#5d6d8e]">등록된 멤버가 없습니다</p>
+            <% end %>
+          </div>
+
+          <% if @member %>
+            <!-- Past Lead Measures (accordion) -->
+            <div>
+              <label class="block text-[11px] font-semibold text-[#5d6d8e] uppercase tracking-wider mb-2">이전 선행지표</label>
+
+              <% if @past_lead_measures.present? %>
+                <div class="space-y-1.5">
+                  <% @past_lead_measures.each do |lm| %>
+                    <% selected = @selected_lead_measure&.id == lm.id %>
+                    <div class="rounded-xl bg-[#0e1525] border border-[#1e2d4a] overflow-hidden <%= selected ? 'border-indigo-500/40' : '' %>">
+
+                      <!-- Lead Measure Row -->
+                      <div class="flex items-center">
+                        <a href="<%= import_tasks_path(member_id: @member.id, lead_measure_id: selected ? nil : lm.id) %>"
+                           data-turbo-frame="modal"
+                           class="flex-1 flex items-center gap-2.5 px-3.5 py-2.5 hover:bg-[#172035]/40 transition-colors min-w-0">
+                          <svg class="w-3.5 h-3.5 text-[#5d6d8e] transition-transform shrink-0 <%= selected ? 'rotate-90' : '' %>" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                          </svg>
+                          <div class="min-w-0 flex-1">
+                            <p class="text-[13px] font-bold text-white truncate"><%= lm.title %></p>
+                            <p class="text-[11px] text-[#5d6d8e] tabular-nums">
+                              <%= lm.week_start_date.strftime("%m/%d") %> 주
+                              · 작업 <%= lm.tasks.where(member: @member).count %>개
+                            </p>
+                          </div>
+                        </a>
+
+                        <!-- Delete Lead Measure (past only) -->
+                        <% current_monday = Date.current.beginning_of_week(:monday) %>
+                        <% unless lm.week_start_date == current_monday %>
+                          <%= button_to wig_lead_measure_path(lm.wig, lm, source: "import"), method: :delete,
+                              class: "p-2.5 text-[#2a3d5e] hover:text-rose-400 transition-colors shrink-0",
+                              data: { turbo_frame: "_top", turbo_confirm: "\"#{lm.title}\" 선행지표와 관련 작업을 삭제합니다." } do %>
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                            </svg>
+                          <% end %>
+                        <% end %>
+                      </div>
+
+                      <!-- Expanded Tasks -->
+                      <% if selected && @past_tasks.present? %>
+                        <div class="border-t border-[#1e2d4a]/50">
+                          <%= form_tag import_tasks_path, method: :post, data: { turbo_frame: "_top" } do %>
+                            <input type="hidden" name="member_id" value="<%= @member.id %>">
+
+                            <div class="px-3.5 py-1.5">
+                              <% @past_tasks.each do |task| %>
+                                <div class="flex items-center gap-2.5 py-2 group">
+                                  <input type="checkbox" name="task_ids[]" value="<%= task.id %>"
+                                         class="w-[18px] h-[18px] rounded border-[#2a3d5e] bg-[#172035] text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0 cursor-pointer shrink-0">
+                                  <p class="flex-1 text-[13px] min-w-0 truncate text-[#c5cfe0]">
+                                    <%= task.title %>
+                                  </p>
+                                  <%= link_to lead_measure_task_path(task.lead_measure, task, source: "import"),
+                                      class: "p-1 text-[#2a3d5e] hover:text-rose-400 transition-colors opacity-0 group-hover:opacity-100 shrink-0",
+                                      data: { turbo_method: :delete, turbo_frame: "_top", turbo_confirm: "이 작업을 삭제합니다." } do %>
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  <% end %>
+                                </div>
+                              <% end %>
+                            </div>
+
+                            <!-- Import Target + Button -->
+                            <div class="px-3.5 pb-3.5 pt-2 border-t border-[#1e2d4a]/30 space-y-2.5">
+                              <% if @current_lead_measures.any? %>
+                                <select name="lead_measure_id" required
+                                        class="w-full h-9 px-3 text-[13px] bg-[#172035] border border-[#1e2d4a] rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors appearance-none">
+                                  <option value="">이번 주 선행지표 선택</option>
+                                  <% @current_lead_measures.each do |clm| %>
+                                    <option value="<%= clm.id %>"><%= clm.title %></option>
+                                  <% end %>
+                                </select>
+                                <button type="submit"
+                                        class="w-full h-9 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-[13px] font-bold rounded-lg shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all">
+                                  선택한 작업 가져오기
+                                </button>
+                              <% else %>
+                                <p class="text-[12px] text-[#5d6d8e] text-center py-1">이번 주 선행지표가 없습니다</p>
+                              <% end %>
+                            </div>
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="rounded-xl bg-[#0e1525] border border-dashed border-[#1e2d4a] px-4 py-6 text-center">
+                  <p class="text-[13px] text-[#5d6d8e]"><%= @member.name %>님의 이전 작업이 없습니다</p>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</turbo-frame>

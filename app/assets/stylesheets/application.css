@@ -1,0 +1,207 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap');
+
+/* ═══════════════════════════════════════ */
+/* COLOR SYSTEM                           */
+/* ═══════════════════════════════════════ */
+
+:root {
+  --bg-base: #080d19;
+  --bg-surface: #111a2e;
+  --bg-elevated: #172035;
+  --bg-hover: #1c2842;
+  --border: #1e2d4a;
+  --border-hover: #2a3d5e;
+  --text-primary: #e2e8f3;
+  --text-secondary: #8896b3;
+  --text-muted: #5d6d8e;
+  --accent: #818cf8;
+  --accent-hover: #a5b4fc;
+}
+
+/* ═══════════════════════════════════════ */
+/* ANIMATIONS                             */
+/* ═══════════════════════════════════════ */
+
+@keyframes progress-fill {
+  from { width: 0%; }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes check-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.animate-progress {
+  animation: progress-fill 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.animate-check-pop {
+  animation: check-pop 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.stagger-1 { animation-delay: 0.04s; }
+.stagger-2 { animation-delay: 0.08s; }
+.stagger-3 { animation-delay: 0.12s; }
+.stagger-4 { animation-delay: 0.16s; }
+.stagger-5 { animation-delay: 0.20s; }
+
+/* ═══════════════════════════════════════ */
+/* NOISE TEXTURE                          */
+/* ═══════════════════════════════════════ */
+
+.noise-bg::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.noise-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══════════════════════════════════════ */
+/* SCROLLBAR                              */
+/* ═══════════════════════════════════════ */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+/* ═══════════════════════════════════════ */
+/* CARDS                                  */
+/* ═══════════════════════════════════════ */
+
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+}
+
+.card-elevated {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+}
+
+/* ═══════════════════════════════════════ */
+/* SECTION HEADER                         */
+/* ═══════════════════════════════════════ */
+
+.section-header {
+  color: var(--text-secondary);
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* ═══════════════════════════════════════ */
+/* CHECKBOX                               */
+/* ═══════════════════════════════════════ */
+
+.task-checkbox {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--border-hover);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.task-checkbox:hover {
+  border-color: #3b5278;
+}
+
+.task-checkbox:checked {
+  background: #10b981;
+  border-color: #10b981;
+}
+
+.task-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 6px;
+  width: 6px; height: 10px;
+  border: solid white;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+
+.task-checkbox:active {
+  transform: scale(0.92);
+}
+
+@media (min-width: 1024px) {
+  .task-checkbox {
+    width: 20px;
+    height: 20px;
+  }
+  .task-checkbox:checked::after {
+    top: 2px; left: 5px;
+    width: 6px; height: 9px;
+  }
+}
+
+/* ═══════════════════════════════════════ */
+/* MOBILE BOTTOM NAV                      */
+/* ═══════════════════════════════════════ */
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 0 8px;
+  flex: 1;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.bottom-nav-item[data-active="true"] {
+  color: var(--accent);
+}
+
+.bottom-nav-item[data-active="true"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 0 0 2px 2px;
+}
+
+.bottom-nav-item:not([data-active="true"]) {
+  color: var(--text-muted);
+}

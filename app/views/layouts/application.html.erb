@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+  <head>
+    <title><%= content_for(:title) || "Scoreboard" %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#080d19">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <style>
+      * { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
+      .font-display { font-family: 'DM Serif Display', Georgia, serif; }
+    </style>
+  </head>
+
+  <body class="h-full bg-[#080d19] text-[#e2e8f3] noise-bg antialiased">
+    <% if session[:authenticated] %>
+      <!-- ═══ HEADER (all screens) ═══ -->
+      <header class="sticky top-0 z-50 backdrop-blur-xl bg-[#080d19]/90 border-b border-[#1e2d4a]/60">
+        <div class="max-w-lg lg:max-w-6xl mx-auto px-4 lg:px-8 h-14 flex items-center justify-between">
+          <!-- Left: Logo + Nav -->
+          <div class="flex items-center gap-6">
+            <a href="<%= root_path %>" class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                </svg>
+              </div>
+              <span class="font-extrabold text-[15px] tracking-tight hidden sm:inline">Scoreboard</span>
+            </a>
+            <!-- Desktop nav links -->
+            <nav class="hidden lg:flex items-center gap-1">
+              <a href="<%= root_path %>"
+                 class="px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all
+                        <%= controller_name == 'dashboard' ? 'bg-indigo-500/10 text-indigo-300' : 'text-[#8896b3] hover:text-[#c5cfe0] hover:bg-[#172035]' %>">
+                대시보드
+              </a>
+              <a href="<%= members_path %>"
+                 class="px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all
+                        <%= controller_name == 'members' ? 'bg-indigo-500/10 text-indigo-300' : 'text-[#8896b3] hover:text-[#c5cfe0] hover:bg-[#172035]' %>">
+                멤버
+              </a>
+            </nav>
+          </div>
+          <!-- Right: Logout -->
+          <%= button_to logout_path, method: :delete, class: "text-[#5d6d8e] hover:text-[#8896b3] transition-colors p-2 -mr-2", data: { turbo_confirm: "로그아웃 하시겠습니까?" } do %>
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+            </svg>
+          <% end %>
+        </div>
+      </header>
+    <% end %>
+
+    <!-- ═══ FLASH MESSAGES ═══ -->
+    <% if flash[:notice] %>
+      <div class="max-w-lg lg:max-w-6xl mx-auto w-full px-4 lg:px-8 pt-3">
+        <div class="bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-sm font-medium px-4 py-3 rounded-xl animate-fade-in-up">
+          <%= flash[:notice] %>
+        </div>
+      </div>
+    <% end %>
+    <% if flash[:alert] %>
+      <div class="max-w-lg lg:max-w-6xl mx-auto w-full px-4 lg:px-8 pt-3">
+        <div class="bg-rose-500/10 border border-rose-500/25 text-rose-400 text-sm font-medium px-4 py-3 rounded-xl animate-fade-in-up">
+          <%= flash[:alert] %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="pb-28 lg:pb-8">
+      <div class="max-w-lg lg:max-w-6xl mx-auto w-full px-4 lg:px-8 py-5 lg:py-8">
+        <%= yield %>
+      </div>
+    </main>
+
+    <% if session[:authenticated] %>
+      <!-- ═══ MOBILE BOTTOM NAV (< lg) ═══ -->
+      <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-[#0b1122] border-t border-[#1e2d4a]" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
+        <div class="max-w-lg mx-auto flex">
+          <a href="<%= root_path %>"
+             data-active="<%= controller_name == 'dashboard' %>"
+             class="bottom-nav-item">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="<%= controller_name == 'dashboard' ? '2' : '1.5' %>">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+            </svg>
+            <span>대시보드</span>
+          </a>
+          <a href="<%= members_path %>"
+             data-active="<%= controller_name == 'members' %>"
+             class="bottom-nav-item">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="<%= controller_name == 'members' ? '2' : '1.5' %>">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+            <span>멤버</span>
+          </a>
+        </div>
+      </nav>
+    <% end %>
+
+    <!-- ═══ MODAL (Turbo Frame) ═══ -->
+    <turbo-frame id="modal"></turbo-frame>
+  </body>
+</html>

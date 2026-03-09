@@ -1,0 +1,41 @@
+service: task_dashboard
+image: 398808282319.dkr.ecr.ap-northeast-2.amazonaws.com/koramco-dashboard
+
+servers:
+  web:
+    - 43.202.81.235
+
+proxy:
+  ssl: true
+  host: koramco-dashboard.demodev.io
+
+registry:
+  server: 398808282319.dkr.ecr.ap-northeast-2.amazonaws.com
+  username: AWS
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+env:
+  secret:
+    - RAILS_MASTER_KEY
+  clear:
+    SOLID_QUEUE_IN_PUMA: true
+
+aliases:
+  console: app exec --interactive --reuse "bin/rails console"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
+
+volumes:
+  - "task_dashboard_storage:/rails/storage"
+
+asset_path: /rails/public/assets
+
+builder:
+  arch: arm64
+
+ssh:
+  user: ubuntu
+  keys:
+    - ~/.ssh/ssh_key/koramco-dashboard-key.pem

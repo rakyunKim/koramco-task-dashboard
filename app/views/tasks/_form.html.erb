@@ -1,0 +1,47 @@
+<%= form_with(model: [lead_measure, task], class: "space-y-5") do |f| %>
+  <% if task.errors.any? %>
+    <div class="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm px-4 py-3 rounded-xl">
+      <% task.errors.full_messages.each do |msg| %>
+        <p><%= msg %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div>
+    <label class="block text-xs font-semibold text-[#8896b3] uppercase tracking-wider mb-2">작업 내용</label>
+    <%= f.text_field :title, required: true, placeholder: "예: A사 미팅 잡기",
+        class: "w-full h-12 px-4 bg-[#111a2e] border border-[#1e2d4a] rounded-xl text-white placeholder-[#5d6d8e] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" %>
+  </div>
+
+  <div>
+    <label class="block text-xs font-semibold text-[#8896b3] uppercase tracking-wider mb-2">담당자</label>
+    <% if members.any? %>
+      <%= f.select :member_id, members.map { |m| [m.name, m.id] }, { prompt: "담당자 선택" },
+          required: true,
+          class: "w-full h-12 px-4 bg-[#111a2e] border border-[#1e2d4a] rounded-xl text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors appearance-none" %>
+    <% else %>
+      <div class="bg-[#111a2e] border border-dashed border-[#1e2d4a] rounded-xl p-4 text-center">
+        <p class="text-sm text-[#8896b3]">등록된 멤버가 없습니다</p>
+        <a href="<%= new_member_path %>" class="text-sm font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+          멤버 추가하기
+        </a>
+      </div>
+    <% end %>
+  </div>
+
+  <div>
+    <label class="block text-xs font-semibold text-[#8896b3] uppercase tracking-wider mb-2">연결 선행지표</label>
+    <%= f.select :lead_measure_id, lead_measures.map { |lm| [lm.title, lm.id] }, {},
+        class: "w-full h-12 px-4 bg-[#111a2e] border border-[#1e2d4a] rounded-xl text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors appearance-none" %>
+  </div>
+
+  <%= f.hidden_field :week_start_date, value: task.week_start_date || Date.current.beginning_of_week(:monday) %>
+
+  <div class="flex gap-3 pt-2">
+    <%= f.submit task.new_record? ? "추가" : "수정 완료",
+        class: "flex-1 h-12 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 active:scale-[0.98] transition-all cursor-pointer" %>
+    <a href="<%= root_path %>" class="h-12 px-5 flex items-center justify-center text-sm font-semibold text-[#8896b3] hover:text-[#c5cfe0] border border-[#1e2d4a] rounded-xl transition-colors">
+      취소
+    </a>
+  </div>
+<% end %>

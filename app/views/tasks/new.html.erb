@@ -1,0 +1,23 @@
+<div class="animate-fade-in-up lg:max-w-lg lg:mx-auto">
+  <h1 class="text-xl lg:text-2xl font-extrabold mb-6">작업 추가</h1>
+  <%= render "form", lead_measure: @lead_measure, task: @task, members: @members, lead_measures: @lead_measures %>
+
+  <% if @members.any? %>
+    <div class="mt-5 pt-5 border-t border-[#1e2d4a]/50">
+      <p class="text-[11px] font-semibold text-[#5d6d8e] uppercase tracking-wider mb-3">또는 이전 작업에서 가져오기</p>
+      <div class="flex flex-wrap gap-2">
+        <% @members.each do |member| %>
+          <a href="<%= import_tasks_path(member_id: member.id) %>"
+             data-turbo-frame="modal"
+             class="inline-flex items-center gap-1.5 px-3 h-9 rounded-lg text-[13px] font-semibold
+                    bg-[#111a2e] text-[#8896b3] border border-[#1e2d4a] hover:border-indigo-500/30 hover:text-indigo-300 transition-all">
+            <div class="w-5 h-5 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+              <span class="text-[9px] font-bold text-white"><%= member.name.first %></span>
+            </div>
+            <%= member.name %>
+          </a>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
