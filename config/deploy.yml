@@ -1,5 +1,5 @@
 service: task_dashboard
-image: 398808282319.dkr.ecr.ap-northeast-2.amazonaws.com/koramco-dashboard
+image: koramco-dashboard
 
 servers:
   web:
