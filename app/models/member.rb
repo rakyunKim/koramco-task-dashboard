@@ -7,11 +7,19 @@ class Member < ApplicationRecord
 
   def completed_tasks_count(week_start = nil)
     week_start ||= Date.current.beginning_of_week(:monday)
-    tasks.where(completed: true, week_start_date: week_start).count
+    if tasks.loaded?
+      tasks.count { |t| t.completed? && t.week_start_date == week_start }
+    else
+      tasks.where(completed: true, week_start_date: week_start).count
+    end
   end
 
   def total_tasks_count(week_start = nil)
     week_start ||= Date.current.beginning_of_week(:monday)
-    tasks.where(week_start_date: week_start).count
+    if tasks.loaded?
+      tasks.count { |t| t.week_start_date == week_start }
+    else
+      tasks.where(week_start_date: week_start).count
+    end
   end
 end

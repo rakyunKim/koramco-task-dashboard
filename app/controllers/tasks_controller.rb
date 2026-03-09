@@ -13,7 +13,7 @@ class TasksController < ApplicationController
     @task = @lead_measure.tasks.new(task_params)
     @task.week_start_date ||= Date.current.beginning_of_week(:monday)
     if @task.save
-      redirect_to root_path, notice: "작업이 추가되었습니다."
+      redirect_to root_path, notice: "할 일이 추가되었습니다."
     else
       @members = Member.ordered
       @lead_measures = @lead_measure.wig.lead_measures.current_week
@@ -32,7 +32,7 @@ class TasksController < ApplicationController
     @task = Task.find(params[:id])
     @lead_measure = @task.lead_measure
     if @task.update(task_params)
-      redirect_to root_path, notice: "작업이 수정되었습니다."
+      redirect_to root_path, notice: "할 일이 수정되었습니다."
     else
       @members = Member.ordered
       @lead_measures = @lead_measure.wig.lead_measures.current_week
@@ -45,9 +45,9 @@ class TasksController < ApplicationController
     from_import = params[:source] == "import"
     task.destroy
     if from_import
-      redirect_back fallback_location: import_tasks_path, notice: "작업이 삭제되었습니다."
+      redirect_back fallback_location: import_tasks_path, notice: "할 일이 삭제되었습니다."
     else
-      redirect_to root_path, notice: "작업이 삭제되었습니다."
+      redirect_to root_path, notice: "할 일이 삭제되었습니다."
     end
   end
 
@@ -79,8 +79,8 @@ class TasksController < ApplicationController
     task_ids = params[:task_ids] || []
     lead_measure_id = params[:lead_measure_id]
 
-    return redirect_to import_tasks_path, alert: "선행지표를 선택해주세요." if lead_measure_id.blank?
-    return redirect_to import_tasks_path, alert: "가져올 작업을 선택해주세요." if task_ids.empty?
+    return redirect_to import_tasks_path, alert: "작업을 선택해주세요." if lead_measure_id.blank?
+    return redirect_to import_tasks_path, alert: "가져올 할 일을 선택해주세요." if task_ids.empty?
 
     count = 0
     ActiveRecord::Base.transaction do
@@ -97,7 +97,7 @@ class TasksController < ApplicationController
       end
     end
 
-    redirect_to root_path, notice: "#{count}개 작업을 가져왔습니다."
+    redirect_to root_path, notice: "#{count}개 할 일을 가져왔습니다."
   end
 
   def toggle
@@ -125,6 +125,8 @@ class TasksController < ApplicationController
       }
       format.html { redirect_to root_path }
     end
+  rescue ActiveRecord::RecordInvalid
+    redirect_to root_path, alert: "상태 변경에 실패했습니다."
   end
 
   private

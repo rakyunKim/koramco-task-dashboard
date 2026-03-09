@@ -1,4 +1,6 @@
 class Wig < ApplicationRecord
+  include Progressable
+
   has_many :lead_measures, dependent: :destroy
 
   validates :title, presence: true
@@ -26,14 +28,6 @@ class Wig < ApplicationRecord
     total = total_lead_measures_count
     return 0 if total.zero?
     (completed_lead_measures_count.to_f / total * 100).round(1)
-  end
-
-  def progress_color
-    pct = progress_percentage
-    if pct >= 70 then "green"
-    elsif pct >= 40 then "yellow"
-    else "red"
-    end
   end
 
   def recalculate!

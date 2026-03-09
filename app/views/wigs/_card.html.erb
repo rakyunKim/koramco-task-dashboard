@@ -26,7 +26,7 @@
       <div class="p-5 lg:p-7 lg:flex-1">
         <div class="flex items-start justify-between mb-5 lg:mb-6">
           <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold text-[#8896b3] uppercase tracking-widest mb-1.5">WIG / 가장 중요한 목표</p>
+            <p class="text-xs font-bold text-[#8896b3] uppercase tracking-widest mb-1.5">달성해야 하는 목표</p>
             <h2 class="text-lg lg:text-xl font-extrabold tracking-tight text-white truncate"><%= wig.title %></h2>
             <% if wig.description.present? %>
               <p class="text-sm text-[#8896b3] mt-1.5 line-clamp-2 leading-relaxed"><%= wig.description %></p>
@@ -68,7 +68,7 @@
           <span class="text-lg font-bold text-[#5d6d8e] mb-1 lg:mb-0 lg:-mt-1">%</span>
         </div>
         <p class="text-[13px] text-[#8896b3] mt-1 lg:mt-3 tabular-nums font-medium">
-          <span class="font-bold text-[#c5cfe0]"><%= wig.completed_lead_measures_count %></span> / <%= wig.total_lead_measures_count %> 선행지표 완료
+          <span class="font-bold text-[#c5cfe0]"><%= wig.completed_lead_measures_count %></span> / <%= wig.total_lead_measures_count %> 작업 완료
         </p>
       </div>
     </div>

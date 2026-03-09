@@ -1,4 +1,6 @@
 class LeadMeasure < ApplicationRecord
+  include Progressable
+
   belongs_to :wig
   has_many :tasks, dependent: :destroy
 
@@ -34,14 +36,6 @@ class LeadMeasure < ApplicationRecord
 
   def completed?
     total_tasks_count > 0 && completed_tasks_count == total_tasks_count
-  end
-
-  def progress_color
-    pct = progress_percentage
-    if pct >= 70 then "green"
-    elsif pct >= 40 then "yellow"
-    else "red"
-    end
   end
 
   def recalculate_current_value!

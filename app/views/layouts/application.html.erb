@@ -22,7 +22,7 @@
   <body class="h-full bg-[#080d19] text-[#e2e8f3] noise-bg antialiased">
     <% if session[:authenticated] %>
       <!-- ═══ HEADER (all screens) ═══ -->
-      <header class="sticky top-0 z-50 backdrop-blur-xl bg-[#080d19]/90 border-b border-[#1e2d4a]/60">
+      <header class="sticky top-0 z-50 backdrop-blur-xl bg-[#080d19]/90 border-b border-[#1e2d4a]/60" style="padding-top: env(safe-area-inset-top, 0px);">
         <div class="max-w-lg lg:max-w-6xl mx-auto px-4 lg:px-8 h-14 flex items-center justify-between">
           <!-- Left: Logo + Nav -->
           <div class="flex items-center gap-6">

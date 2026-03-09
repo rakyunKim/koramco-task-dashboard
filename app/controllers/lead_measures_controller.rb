@@ -1,5 +1,5 @@
 class LeadMeasuresController < ApplicationController
-  before_action :set_wig
+  before_action :set_wig, except: [:move_to_current_week]
 
   def new
     @lead_measure = @wig.lead_measures.new(
@@ -11,7 +11,7 @@ class LeadMeasuresController < ApplicationController
     @lead_measure = @wig.lead_measures.new(lead_measure_params)
     @lead_measure.week_start_date ||= Date.current.beginning_of_week(:monday)
     if @lead_measure.save
-      redirect_to root_path, notice: "선행지표가 추가되었습니다."
+      redirect_to root_path, notice: "작업이 추가되었습니다."
     else
       render :new, status: :unprocessable_entity
     end
@@ -24,7 +24,7 @@ class LeadMeasuresController < ApplicationController
   def update
     @lead_measure = @wig.lead_measures.find(params[:id])
     if @lead_measure.update(lead_measure_params)
-      redirect_to root_path, notice: "선행지표가 수정되었습니다."
+      redirect_to root_path, notice: "작업이 수정되었습니다."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -36,15 +36,25 @@ class LeadMeasuresController < ApplicationController
     current_monday = Date.current.beginning_of_week(:monday)
 
     if from_import && lm.week_start_date == current_monday
-      redirect_back fallback_location: root_path, alert: "이번 주 선행지표는 여기서 삭제할 수 없습니다."
+      redirect_back fallback_location: root_path, alert: "이번 주 작업은 여기서 삭제할 수 없습니다."
     else
       lm.destroy
       if from_import
-        redirect_back fallback_location: import_tasks_path, notice: "선행지표와 관련 작업이 삭제되었습니다."
+        redirect_back fallback_location: import_tasks_path, notice: "작업과 관련 할 일이 삭제되었습니다."
       else
-        redirect_to root_path, notice: "선행지표가 삭제되었습니다."
+        redirect_to root_path, notice: "작업이 삭제되었습니다."
       end
     end
+  end
+
+  def move_to_current_week
+    wig = Wig.active.first!
+    lm = wig.lead_measures.find(params[:id])
+    current_monday = Date.current.beginning_of_week(:monday)
+    lm.update!(week_start_date: current_monday)
+    lm.tasks.update_all(week_start_date: current_monday)
+    lm.recalculate_current_value!
+    redirect_to root_path, notice: "작업이 이번 주로 이동되었습니다."
   end
 
   private

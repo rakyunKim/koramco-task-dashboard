@@ -6,8 +6,8 @@ class SessionsController < ApplicationController
   end
 
   def create
-    if ActiveSupport::SecurityUtils.secure_compare(params[:username].to_s, ENV.fetch("DASHBOARD_USERNAME", "admin")) &&
-       ActiveSupport::SecurityUtils.secure_compare(params[:password].to_s, ENV.fetch("DASHBOARD_PASSWORD", "password"))
+    if ActiveSupport::SecurityUtils.secure_compare(params[:username].to_s, ENV.fetch("DASHBOARD_USERNAME")) &&
+       ActiveSupport::SecurityUtils.secure_compare(params[:password].to_s, ENV.fetch("DASHBOARD_PASSWORD"))
       session[:authenticated] = true
       redirect_to root_path
     else

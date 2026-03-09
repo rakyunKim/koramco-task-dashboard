@@ -20,6 +20,8 @@ env:
     - RAILS_MASTER_KEY
   clear:
     SOLID_QUEUE_IN_PUMA: true
+    DASHBOARD_USERNAME: koramco
+    DASHBOARD_PASSWORD: "koramco123!!"
 
 aliases:
   console: app exec --interactive --reuse "bin/rails console"

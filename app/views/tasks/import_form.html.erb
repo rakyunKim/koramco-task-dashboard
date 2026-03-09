@@ -18,9 +18,9 @@
         <!-- Header -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-[#1e2d4a]/60 shrink-0">
           <div>
-            <h2 class="text-base font-extrabold text-white">이전 작업 가져오기</h2>
+            <h2 class="text-base font-extrabold text-white">이전 할 일 가져오기</h2>
             <% if @member %>
-              <p class="text-[12px] text-[#5d6d8e] mt-0.5"><%= @member.name %>님의 이전 작업</p>
+              <p class="text-[12px] text-[#5d6d8e] mt-0.5"><%= @member.name %>님의 이전 할 일</p>
             <% end %>
           </div>
           <button data-action="modal#close" class="p-2 -mr-2 text-[#5d6d8e] hover:text-[#8896b3] transition-colors">
@@ -61,7 +61,7 @@
           <% if @member %>
             <!-- Past Lead Measures (accordion) -->
             <div>
-              <label class="block text-[11px] font-semibold text-[#5d6d8e] uppercase tracking-wider mb-2">이전 선행지표</label>
+              <label class="block text-[11px] font-semibold text-[#5d6d8e] uppercase tracking-wider mb-2">이전 작업</label>
 
               <% if @past_lead_measures.present? %>
                 <div class="space-y-1.5">
@@ -81,7 +81,7 @@
                             <p class="text-[13px] font-bold text-white truncate"><%= lm.title %></p>
                             <p class="text-[11px] text-[#5d6d8e] tabular-nums">
                               <%= lm.week_start_date.strftime("%m/%d") %> 주
-                              · 작업 <%= lm.tasks.where(member: @member).count %>개
+                              · 할 일 <%= lm.tasks.where(member: @member).count %>개
                             </p>
                           </div>
                         </a>
@@ -91,7 +91,7 @@
                         <% unless lm.week_start_date == current_monday %>
                           <%= button_to wig_lead_measure_path(lm.wig, lm, source: "import"), method: :delete,
                               class: "p-2.5 text-[#2a3d5e] hover:text-rose-400 transition-colors shrink-0",
-                              data: { turbo_frame: "_top", turbo_confirm: "\"#{lm.title}\" 선행지표와 관련 작업을 삭제합니다." } do %>
+                              data: { turbo_frame: "_top", turbo_confirm: "\"#{lm.title}\" 작업과 관련 할 일을 삭제합니다." } do %>
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                             </svg>
@@ -115,7 +115,7 @@
                                   </p>
                                   <%= link_to lead_measure_task_path(task.lead_measure, task, source: "import"),
                                       class: "p-1 text-[#2a3d5e] hover:text-rose-400 transition-colors opacity-0 group-hover:opacity-100 shrink-0",
-                                      data: { turbo_method: :delete, turbo_frame: "_top", turbo_confirm: "이 작업을 삭제합니다." } do %>
+                                      data: { turbo_method: :delete, turbo_frame: "_top", turbo_confirm: "이 할 일을 삭제합니다." } do %>
                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -129,17 +129,17 @@
                               <% if @current_lead_measures.any? %>
                                 <select name="lead_measure_id" required
                                         class="w-full h-9 px-3 text-[13px] bg-[#172035] border border-[#1e2d4a] rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors appearance-none">
-                                  <option value="">이번 주 선행지표 선택</option>
+                                  <option value="">이번 주 작업 선택</option>
                                   <% @current_lead_measures.each do |clm| %>
                                     <option value="<%= clm.id %>"><%= clm.title %></option>
                                   <% end %>
                                 </select>
                                 <button type="submit"
                                         class="w-full h-9 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-[13px] font-bold rounded-lg shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all">
-                                  선택한 작업 가져오기
+                                  선택한 할 일 가져오기
                                 </button>
                               <% else %>
-                                <p class="text-[12px] text-[#5d6d8e] text-center py-1">이번 주 선행지표가 없습니다</p>
+                                <p class="text-[12px] text-[#5d6d8e] text-center py-1">이번 주 작업이 없습니다</p>
                               <% end %>
                             </div>
                           <% end %>
@@ -150,7 +150,7 @@
                 </div>
               <% else %>
                 <div class="rounded-xl bg-[#0e1525] border border-dashed border-[#1e2d4a] px-4 py-6 text-center">
-                  <p class="text-[13px] text-[#5d6d8e]"><%= @member.name %>님의 이전 작업이 없습니다</p>
+                  <p class="text-[13px] text-[#5d6d8e]"><%= @member.name %>님의 이전 할 일이 없습니다</p>
                 </div>
               <% end %>
             </div>

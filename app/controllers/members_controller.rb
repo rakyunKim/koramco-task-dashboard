@@ -1,6 +1,6 @@
 class MembersController < ApplicationController
   def index
-    @members = Member.ordered
+    @members = Member.ordered.includes(:tasks)
   end
 
   def new

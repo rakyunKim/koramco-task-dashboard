@@ -1,15 +1,40 @@
 <% if @wig %>
   <div class="space-y-6 lg:space-y-8">
-    <!-- WIG Card -->
+    <!-- Goal Card -->
     <%= render partial: "wigs/card", locals: { wig: @wig } %>
+
+    <!-- Weekly Progress Summary -->
+    <% if @lead_measures.present? %>
+      <%
+        weekly_total = @weekly_total_tasks || 0
+        weekly_done = @weekly_completed_tasks || 0
+        weekly_pct = weekly_total > 0 ? (weekly_done.to_f / weekly_total * 100).round : 0
+        pct_color = weekly_pct >= 70 ? "text-emerald-400" : (weekly_pct >= 40 ? "text-amber-400" : "text-rose-400")
+        bar_gradient = weekly_pct >= 70 ? "from-emerald-400 to-teal-400" : (weekly_pct >= 40 ? "from-amber-400 to-orange-400" : "from-rose-400 to-pink-400")
+      %>
+      <div class="card p-4 animate-fade-in-up">
+        <div class="flex items-center justify-between mb-2.5">
+          <p class="text-xs font-bold text-[#8896b3] uppercase tracking-wider">이번 주 진행 현황</p>
+          <span class="text-lg font-extrabold tabular-nums <%= pct_color %>"><%= weekly_pct %>%</span>
+        </div>
+        <div class="h-2 bg-[#172035] rounded-full overflow-hidden mb-2">
+          <div class="h-full bg-gradient-to-r <%= bar_gradient %> rounded-full transition-all duration-500" style="width: <%= weekly_pct %>%"></div>
+        </div>
+        <p class="text-[13px] text-[#8896b3] tabular-nums">
+          작업 <span class="font-bold text-[#c5cfe0]"><%= @lead_measures.count(&:completed?) %></span> / <%= @lead_measures.size %> 완료
+          <span class="text-[#2a3d5e] mx-1.5">&middot;</span>
+          할 일 <span class="font-bold text-[#c5cfe0]"><%= weekly_done %></span> / <%= weekly_total %> 완료
+        </p>
+      </div>
+    <% end %>
 
     <!-- Desktop: 2-Column / Mobile: Stack -->
     <div class="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-10">
 
-      <!-- Lead Measures -->
+      <!-- Lead Measures (작업) -->
       <section class="animate-fade-in-up stagger-1 mb-8 lg:mb-0">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="section-header">이번 주 선행지표</h2>
+          <h2 class="section-header">이번 주 작업</h2>
           <a href="<%= new_wig_lead_measure_path(@wig) %>" class="text-[13px] font-semibold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -26,21 +51,21 @@
           </div>
         <% else %>
           <div class="card border-dashed p-6 text-center">
-            <p class="text-sm text-[#5d6d8e]">선행지표를 추가하세요</p>
+            <p class="text-sm text-[#5d6d8e]">작업을 추가하세요</p>
             <a href="<%= new_wig_lead_measure_path(@wig) %>" class="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-400 hover:text-indigo-300 mt-2.5 transition-colors">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
-              첫 선행지표 추가
+              첫 작업 추가
             </a>
           </div>
         <% end %>
       </section>
 
-      <!-- Tasks by Member -->
+      <!-- Tasks by Member (할 일) -->
       <section class="animate-fade-in-up stagger-2">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="section-header">이번 주 작업</h2>
+          <h2 class="section-header">이번 주 할 일</h2>
           <% if @lead_measures.present? %>
             <a href="<%= new_lead_measure_task_path(@lead_measures.first) %>" class="text-[13px] font-semibold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -67,7 +92,7 @@
                     <a href="<%= import_tasks_path(member_id: member.id) %>"
                        data-turbo-frame="modal"
                        class="text-[#5d6d8e] hover:text-indigo-400 transition-colors p-1"
-                       title="이전 작업 가져오기">
+                       title="이전 할 일 가져오기">
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
                       </svg>
@@ -90,7 +115,7 @@
           </div>
         <% else %>
           <div class="card border-dashed p-6 text-center">
-            <p class="text-sm text-[#5d6d8e]">아직 등록된 작업이 없습니다</p>
+            <p class="text-sm text-[#5d6d8e]">아직 등록된 할 일이 없습니다</p>
             <% if @members.empty? %>
               <a href="<%= new_member_path %>" class="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-400 hover:text-indigo-300 mt-2.5 transition-colors">
                 먼저 멤버를 추가하세요
@@ -100,13 +125,79 @@
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                첫 작업 추가
+                첫 할 일 추가
               </a>
             <% end %>
           </div>
         <% end %>
       </section>
     </div>
+
+    <!-- Upcoming Tasks (예정된 작업) -->
+    <% if @upcoming_lead_measures.present? %>
+      <section class="animate-fade-in-up stagger-3">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="section-header">예정된 작업</h2>
+          <a href="<%= new_wig_lead_measure_path(@wig) %>" class="text-[13px] font-semibold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            추가
+          </a>
+        </div>
+
+        <div class="space-y-3">
+          <% @upcoming_lead_measures.group_by(&:week_start_date).sort.each do |week_date, lms| %>
+            <div class="card overflow-hidden">
+              <div class="px-4 py-2.5 bg-[#172035]/60 border-b border-[#1e2d4a]/60">
+                <p class="text-[11px] font-bold text-[#5d6d8e] uppercase tracking-wider">
+                  <%= week_date.strftime("%m/%d") %> 주
+                  <% weeks_away = ((week_date - Date.current.beginning_of_week(:monday)) / 7).to_i %>
+                  <% if weeks_away == 1 %>
+                    <span class="text-indigo-400 ml-1">다음 주</span>
+                  <% else %>
+                    <span class="text-[#8896b3] ml-1"><%= weeks_away %>주 후</span>
+                  <% end %>
+                </p>
+              </div>
+              <div class="divide-y divide-[#1e2d4a]/50">
+                <% lms.each do |lm| %>
+                  <div class="px-4 py-3 flex items-center justify-between group">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                      <div class="w-8 h-8 rounded-lg bg-[#172035] flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4 text-[#5d6d8e]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                        </svg>
+                      </div>
+                      <div class="min-w-0">
+                        <p class="text-[14px] font-semibold text-[#c5cfe0] truncate"><%= lm.title %></p>
+                        <p class="text-[11px] text-[#5d6d8e] tabular-nums">할 일 <%= lm.tasks.count %>개</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <%= button_to move_lead_measure_to_current_week_path(lm),
+                          method: :patch,
+                          class: "inline-flex items-center gap-1 px-3 h-8 rounded-lg text-[12px] font-semibold bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-all",
+                          data: { turbo_confirm: "\"#{lm.title}\"을(를) 이번 주로 이동합니다." } do %>
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                        </svg>
+                        이번 주로
+                      <% end %>
+                      <a href="<%= edit_wig_lead_measure_path(@wig, lm) %>" class="text-[#5d6d8e] hover:text-[#8896b3] transition-colors p-1">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
 
   </div>
 
@@ -120,12 +211,12 @@
         </svg>
       </div>
       <h2 class="text-xl font-extrabold mb-2 text-white">목표를 설정하세요</h2>
-      <p class="text-sm text-[#8896b3] mb-6 leading-relaxed">가장 중요한 목표(WIG)를 설정하고<br>팀의 진행 상황을 추적하세요</p>
+      <p class="text-sm text-[#8896b3] mb-6 leading-relaxed">달성해야 하는 목표를 설정하고<br>팀의 진행 상황을 추적하세요</p>
       <a href="<%= new_wig_path %>" class="inline-flex items-center gap-2 px-6 h-12 bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 active:scale-[0.98] transition-all">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
-        WIG 설정하기
+        목표 설정하기
       </a>
     </div>
   </div>
