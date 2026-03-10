@@ -5,7 +5,7 @@ module Jira
     end
 
     def my_open_issues(project_key: nil)
-      jql = "statusCategory != Done AND status != \"DROP\""
+      jql = "statusCategory != Done"
       jql += " AND project = #{project_key}" if project_key
       jql += " ORDER BY updated DESC"
 
@@ -15,7 +15,8 @@ module Jira
         maxResults: 50
       })
 
-      result["issues"].map { |issue| normalize_issue(issue) }
+      allowed = ["진행 중", "해야 할 일", "BACKLOG"]
+      result["issues"].map { |issue| normalize_issue(issue) }.select { |i| allowed.include?(i[:status]) }
     end
 
     def projects

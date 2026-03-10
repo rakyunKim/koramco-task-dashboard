@@ -8,7 +8,7 @@ class JiraSyncCompletionJob < ApplicationJob
     return unless task&.jira_linked? && task.completed?
 
     transitioner = Jira::IssueTransitioner.new
-    transitioner.transition_to_done(task.jira_issue_key)
+    transitioner.transition_to_dev(task.jira_issue_key)
 
     task.update!(jira_synced_at: Time.current)
 
