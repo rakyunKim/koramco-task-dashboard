@@ -9,6 +9,9 @@ Rails.application.routes.draw do
   # Dashboard (root)
   root "dashboard#show"
 
+  # Completed tasks
+  get "completed", to: "completed_tasks#index", as: :completed_tasks
+
   # Members
   resources :members, only: [:index, :new, :create, :edit, :update, :destroy]
 
