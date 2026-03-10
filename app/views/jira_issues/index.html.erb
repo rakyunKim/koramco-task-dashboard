@@ -53,44 +53,64 @@
       </div>
     </div>
 
-    <!-- Issue List -->
-    <div class="bg-white rounded-2xl border border-[#e2e6ed] divide-y divide-[#e2e6ed]">
-      <% if @issues.empty? %>
-        <div class="p-8 text-center">
-          <p class="text-sm text-[#94a3b8]">미완료 티켓이 없습니다.</p>
-        </div>
-      <% else %>
-        <% @issues.each do |issue| %>
-          <% already_imported = @imported_keys.include?(issue[:key]) %>
-          <label class="flex items-center gap-3 px-5 py-3.5 hover:bg-[#f8f9fb] transition-colors cursor-pointer <%= 'opacity-50' if already_imported %>">
-            <input type="checkbox"
-                   name="issue_keys[]"
-                   value="<%= issue[:key] %>"
-                   <%= "disabled checked" if already_imported %>
-                   class="task-checkbox">
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-indigo-500 shrink-0"><%= issue[:key] %></span>
-                <span class="text-[15px] text-[#1a202c] truncate"><%= issue[:summary] %></span>
-              </div>
-              <div class="flex items-center gap-2 mt-0.5">
-                <span class="text-xs text-[#94a3b8]"><%= issue[:project_name] %></span>
-                <span class="text-xs text-[#cbd5e1]">&middot;</span>
-                <span class="text-xs text-[#94a3b8]"><%= issue[:issue_type] %></span>
-                <span class="text-xs text-[#cbd5e1]">&middot;</span>
-                <span class="text-xs px-1.5 py-0.5 rounded bg-[#f0f2f5] text-[#64748b]"><%= issue[:status] %></span>
-              </div>
-            </div>
-            <% if already_imported %>
-              <span class="text-xs font-semibold text-emerald-500 shrink-0">연결됨</span>
-            <% end %>
-          </label>
-        <% end %>
-      <% end %>
-    </div>
+    <%
+      status_colors = {
+        "진행 중" => "bg-amber-50 text-amber-700 border-amber-200",
+        "해야 할 일" => "bg-blue-50 text-blue-700 border-blue-200",
+        "DEV 반영" => "bg-violet-50 text-violet-700 border-violet-200",
+        "PROD 반영" => "bg-emerald-50 text-emerald-700 border-emerald-200",
+        "BACKLOG" => "bg-slate-50 text-slate-500 border-slate-200"
+      }
+      total_count = @grouped_issues.sum { |_, issues| issues.size }
+    %>
 
-    <!-- Submit -->
-    <% if @issues.any? %>
+    <!-- Issue List (grouped by status) -->
+    <% if @grouped_issues.empty? %>
+      <div class="bg-white rounded-2xl border border-[#e2e6ed] p-8 text-center">
+        <p class="text-sm text-[#94a3b8]">미완료 티켓이 없습니다.</p>
+      </div>
+    <% else %>
+      <div class="space-y-4">
+        <% @grouped_issues.each do |status, issues| %>
+          <% color = status_colors[status] || "bg-slate-50 text-slate-500 border-slate-200" %>
+          <div class="bg-white rounded-2xl border border-[#e2e6ed] overflow-hidden">
+            <div class="px-5 py-3 border-b border-[#e2e6ed] flex items-center gap-2">
+              <span class="text-xs font-bold px-2 py-1 rounded-md border <%= color %>"><%= status %></span>
+              <span class="text-xs text-[#94a3b8]"><%= issues.size %>개</span>
+            </div>
+            <div class="divide-y divide-[#e2e6ed]">
+              <% issues.each do |issue| %>
+                <% already_imported = @imported_keys.include?(issue[:key]) %>
+                <label class="flex items-center gap-3 px-5 py-3.5 hover:bg-[#f8f9fb] transition-colors cursor-pointer <%= 'opacity-50' if already_imported %>">
+                  <input type="checkbox"
+                         name="issue_keys[]"
+                         value="<%= issue[:key] %>"
+                         <%= "disabled checked" if already_imported %>
+                         class="task-checkbox">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold text-indigo-500 shrink-0"><%= issue[:key] %></span>
+                      <span class="text-[15px] text-[#1a202c] truncate"><%= issue[:summary] %></span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <span class="text-xs text-[#94a3b8]"><%= issue[:issue_type] %></span>
+                      <% if issue[:assignee_name] %>
+                        <span class="text-xs text-[#cbd5e1]">&middot;</span>
+                        <span class="text-xs text-[#94a3b8]"><%= issue[:assignee_name] %></span>
+                      <% end %>
+                    </div>
+                  </div>
+                  <% if already_imported %>
+                    <span class="text-xs font-semibold text-emerald-500 shrink-0">연결됨</span>
+                  <% end %>
+                </label>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Submit -->
       <div class="mt-4">
         <button type="submit" class="w-full h-12 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 active:scale-[0.98] transition-all cursor-pointer">
           선택한 티켓 가져오기

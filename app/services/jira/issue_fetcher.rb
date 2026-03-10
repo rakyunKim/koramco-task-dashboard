@@ -5,7 +5,7 @@ module Jira
     end
 
     def my_open_issues(project_key: nil)
-      jql = "statusCategory != Done"
+      jql = "statusCategory != Done AND status != \"DROP\""
       jql += " AND project = #{project_key}" if project_key
       jql += " ORDER BY updated DESC"
 

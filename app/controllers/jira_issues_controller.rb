@@ -4,8 +4,10 @@ class JiraIssuesController < ApplicationController
   def index
     fetcher = Jira::IssueFetcher.new
     @projects = fetcher.projects
-    @issues = fetcher.my_open_issues(project_key: params[:project_key].presence)
+    issues = fetcher.my_open_issues(project_key: params[:project_key].presence)
     @imported_keys = Task.jira_linked.pluck(:jira_issue_key)
+    status_order = ["진행 중", "해야 할 일", "DEV 반영", "PROD 반영", "BACKLOG"]
+    @grouped_issues = issues.group_by { |i| i[:status] }.sort_by { |status, _| status_order.index(status) || 99 }
     @lead_measures = current_wig&.lead_measures&.current_week || LeadMeasure.none
     @members = Member.ordered
   rescue Jira::Error => e
