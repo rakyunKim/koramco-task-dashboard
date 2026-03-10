@@ -159,6 +159,7 @@ class TasksController < ApplicationController
     @imported_keys = Task.jira_linked.pluck(:jira_issue_key)
     status_order = ["진행 중", "해야 할 일", "BACKLOG"]
     @grouped_jira_issues = issues.group_by { |i| i[:status] }.sort_by { |status, _| status_order.index(status) || 99 }
+    @jira_site_url = JiraSetting.current&.site_url
   rescue Jira::Error
     @grouped_jira_issues = []
   end

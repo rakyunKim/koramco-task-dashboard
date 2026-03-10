@@ -82,7 +82,9 @@
                            class="task-checkbox">
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-indigo-500 shrink-0"><%= issue[:key] %></span>
+                        <a href="<%= @jira_site_url %>/browse/<%= issue[:key] %>" target="_blank" rel="noopener"
+                           class="text-xs font-bold text-indigo-500 hover:text-indigo-700 hover:underline shrink-0"
+                           onclick="event.stopPropagation()"><%= issue[:key] %></a>
                         <span class="text-[15px] text-[#1a202c] truncate"><%= issue[:summary] %></span>
                       </div>
                       <div class="flex items-center gap-2 mt-0.5">
