@@ -6,6 +6,8 @@ class TasksController < ApplicationController
     )
     @members = Member.ordered
     @lead_measures = @lead_measure.wig.lead_measures.current_week
+    @jira_configured = JiraSetting.configured?
+    @jira_projects = @jira_configured ? fetch_jira_projects : []
   end
 
   def create
@@ -14,6 +16,9 @@ class TasksController < ApplicationController
     @task = @lead_measure.tasks.new(task_params.except(:lead_measure_id))
     @task.week_start_date ||= Date.current.beginning_of_week(:monday)
     if @task.save
+      if params[:create_jira_issue] == "1" && JiraSetting.configured? && params[:jira_project_key].present?
+        JiraCreateIssueJob.perform_later(@task.id, params[:jira_project_key])
+      end
       redirect_to root_path, notice: "할 일이 추가되었습니다."
     else
       @members = Member.ordered
@@ -134,5 +139,11 @@ class TasksController < ApplicationController
 
   def task_params
     params.require(:task).permit(:title, :member_id, :lead_measure_id, :week_start_date)
+  end
+
+  def fetch_jira_projects
+    Jira::IssueFetcher.new.projects
+  rescue Jira::Error
+    []
   end
 end

@@ -37,6 +37,31 @@
 
   <%= f.hidden_field :week_start_date, value: task.week_start_date || Date.current.beginning_of_week(:monday) %>
 
+  <% if task.new_record? && defined?(jira_configured) && jira_configured && defined?(jira_projects) && jira_projects.any? %>
+    <div class="bg-[#f8f9fb] border border-[#e2e6ed] rounded-xl p-4 space-y-3">
+      <label class="flex items-center gap-3 cursor-pointer">
+        <input type="checkbox" name="create_jira_issue" value="1"
+               class="task-checkbox"
+               onchange="document.getElementById('jira-project-select').classList.toggle('hidden', !this.checked)">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.005 1.005 0 0 0 23.013 0z"/>
+          </svg>
+          <span class="text-sm font-semibold text-[#1a202c]">Jira 티켓도 생성</span>
+        </div>
+      </label>
+      <div id="jira-project-select" class="hidden">
+        <label class="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Jira 프로젝트</label>
+        <select name="jira_project_key"
+                class="w-full h-10 px-3 bg-white border border-[#e2e6ed] rounded-xl text-sm text-[#1a202c] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors appearance-none">
+          <% jira_projects.each do |project| %>
+            <option value="<%= project[:key] %>"><%= project[:name] %> (<%= project[:key] %>)</option>
+          <% end %>
+        </select>
+      </div>
+    </div>
+  <% end %>
+
   <div class="flex gap-3 pt-2">
     <%= f.submit task.new_record? ? "추가" : "수정 완료",
         class: "flex-1 h-12 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 active:scale-[0.98] transition-all cursor-pointer" %>

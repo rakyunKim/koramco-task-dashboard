@@ -1,0 +1,101 @@
+<% content_for(:title) { "Jira 가져오기" } %>
+
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-extrabold text-[#1a202c]">Jira 티켓 가져오기</h1>
+      <p class="text-sm text-[#64748b] mt-1">내 담당 미완료 티켓을 할 일로 가져옵니다.</p>
+    </div>
+    <a href="<%= root_path %>" class="text-sm font-semibold text-[#64748b] hover:text-[#334155] transition-colors">
+      돌아가기
+    </a>
+  </div>
+
+  <!-- Project Filter -->
+  <div class="bg-white rounded-2xl border border-[#e2e6ed] p-5">
+    <div class="flex flex-wrap gap-2">
+      <a href="<%= jira_issues_path %>"
+         class="px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all
+                <%= params[:project_key].blank? ? 'bg-indigo-50 text-indigo-600' : 'text-[#64748b] hover:text-[#334155] hover:bg-[#f0f2f5]' %>">
+        전체
+      </a>
+      <% @projects.each do |project| %>
+        <a href="<%= jira_issues_path(project_key: project[:key]) %>"
+           class="px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all
+                  <%= params[:project_key] == project[:key] ? 'bg-indigo-50 text-indigo-600' : 'text-[#64748b] hover:text-[#334155] hover:bg-[#f0f2f5]' %>">
+          <%= project[:name] %>
+        </a>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Import Form -->
+  <%= form_tag import_jira_issues_path, method: :post do %>
+    <!-- Target Selection -->
+    <div class="bg-white rounded-2xl border border-[#e2e6ed] p-5 mb-4 space-y-4">
+      <h3 class="text-sm font-bold text-[#1a202c]">가져올 위치</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">연결 작업</label>
+          <%= select_tag :lead_measure_id, options_from_collection_for_select(@lead_measures, :id, :title),
+              prompt: "작업 선택",
+              required: true,
+              class: "w-full h-10 px-3 bg-white border border-[#e2e6ed] rounded-xl text-sm text-[#1a202c] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors appearance-none" %>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">담당자</label>
+          <%= select_tag :member_id, options_from_collection_for_select(@members, :id, :name),
+              prompt: "담당자 선택",
+              required: true,
+              class: "w-full h-10 px-3 bg-white border border-[#e2e6ed] rounded-xl text-sm text-[#1a202c] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors appearance-none" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Issue List -->
+    <div class="bg-white rounded-2xl border border-[#e2e6ed] divide-y divide-[#e2e6ed]">
+      <% if @issues.empty? %>
+        <div class="p-8 text-center">
+          <p class="text-sm text-[#94a3b8]">미완료 티켓이 없습니다.</p>
+        </div>
+      <% else %>
+        <% @issues.each do |issue| %>
+          <% already_imported = @imported_keys.include?(issue[:key]) %>
+          <label class="flex items-center gap-3 px-5 py-3.5 hover:bg-[#f8f9fb] transition-colors cursor-pointer <%= 'opacity-50' if already_imported %>">
+            <input type="checkbox"
+                   name="issue_keys[]"
+                   value="<%= issue[:key] %>"
+                   <%= "disabled checked" if already_imported %>
+                   class="task-checkbox">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-indigo-500 shrink-0"><%= issue[:key] %></span>
+                <span class="text-[15px] text-[#1a202c] truncate"><%= issue[:summary] %></span>
+              </div>
+              <div class="flex items-center gap-2 mt-0.5">
+                <span class="text-xs text-[#94a3b8]"><%= issue[:project_name] %></span>
+                <span class="text-xs text-[#cbd5e1]">&middot;</span>
+                <span class="text-xs text-[#94a3b8]"><%= issue[:issue_type] %></span>
+                <span class="text-xs text-[#cbd5e1]">&middot;</span>
+                <span class="text-xs px-1.5 py-0.5 rounded bg-[#f0f2f5] text-[#64748b]"><%= issue[:status] %></span>
+              </div>
+            </div>
+            <% if already_imported %>
+              <span class="text-xs font-semibold text-emerald-500 shrink-0">연결됨</span>
+            <% end %>
+          </label>
+        <% end %>
+      <% end %>
+    </div>
+
+    <!-- Submit -->
+    <% if @issues.any? %>
+      <div class="mt-4">
+        <button type="submit" class="w-full h-12 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 active:scale-[0.98] transition-all cursor-pointer">
+          선택한 티켓 가져오기
+        </button>
+      </div>
+    <% end %>
+  <% end %>
+</div>

@@ -31,4 +31,19 @@ Rails.application.routes.draw do
   # Task import (이전 할 일 가져오기)
   get "tasks/import", to: "tasks#import_form", as: :import_tasks
   post "tasks/import", to: "tasks#import_create"
+
+  # Jira 연동
+  resource :jira_setting, only: [:edit, :update, :destroy] do
+    post :test_connection, on: :member
+  end
+
+  resources :jira_issues, only: [:index] do
+    collection do
+      post :import
+    end
+  end
+
+  namespace :webhooks do
+    post "jira", to: "jira#receive"
+  end
 end

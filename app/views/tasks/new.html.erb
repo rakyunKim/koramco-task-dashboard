@@ -1,6 +1,6 @@
 <div class="animate-fade-in-up lg:max-w-lg lg:mx-auto">
   <h1 class="text-xl lg:text-2xl font-extrabold mb-6">할 일 추가</h1>
-  <%= render "form", lead_measure: @lead_measure, task: @task, members: @members, lead_measures: @lead_measures %>
+  <%= render "form", lead_measure: @lead_measure, task: @task, members: @members, lead_measures: @lead_measures, jira_configured: @jira_configured, jira_projects: @jira_projects %>
 
   <% if @members.any? %>
     <div class="mt-5 pt-5 border-t border-[#e2e6ed]/50">

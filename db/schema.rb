@@ -10,7 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_09_162739) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_060003) do
+  create_table "jira_settings", force: :cascade do |t|
+    t.boolean "active", default: true
+    t.text "api_token", null: false
+    t.datetime "created_at", null: false
+    t.string "email", null: false
+    t.string "site_url", null: false
+    t.datetime "updated_at", null: false
+    t.string "webhook_secret"
+  end
+
+  create_table "jira_sync_logs", force: :cascade do |t|
+    t.string "action", null: false
+    t.datetime "created_at", null: false
+    t.string "direction", null: false
+    t.text "error_message"
+    t.string "jira_issue_key"
+    t.string "status", null: false
+    t.integer "task_id"
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_jira_sync_logs_on_status"
+    t.index ["task_id"], name: "index_jira_sync_logs_on_task_id"
+  end
+
   create_table "lead_measures", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.decimal "current_value", precision: 10, scale: 2, default: "0.0"
@@ -36,11 +59,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_162739) do
     t.datetime "completed_at"
     t.decimal "contribution_value", precision: 10, scale: 2, default: "1.0"
     t.datetime "created_at", null: false
+    t.string "jira_issue_id"
+    t.string "jira_issue_key"
+    t.datetime "jira_synced_at"
     t.integer "lead_measure_id", null: false
     t.integer "member_id", null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.date "week_start_date", null: false
+    t.index ["jira_issue_id"], name: "index_tasks_on_jira_issue_id", unique: true
+    t.index ["jira_issue_key"], name: "index_tasks_on_jira_issue_key", unique: true
     t.index ["lead_measure_id", "week_start_date"], name: "index_tasks_on_lead_measure_id_and_week_start_date"
     t.index ["lead_measure_id"], name: "index_tasks_on_lead_measure_id"
     t.index ["member_id", "week_start_date"], name: "index_tasks_on_member_id_and_week_start_date"
@@ -59,6 +87,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_162739) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "jira_sync_logs", "tasks"
   add_foreign_key "lead_measures", "wigs"
   add_foreign_key "tasks", "lead_measures"
   add_foreign_key "tasks", "members"
