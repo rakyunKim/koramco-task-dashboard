@@ -1,6 +1,115 @@
-<div class="animate-fade-in-up lg:max-w-lg lg:mx-auto">
+<div class="animate-fade-in-up lg:max-w-lg lg:mx-auto" data-controller="jira-toggle">
   <h1 class="text-xl lg:text-2xl font-extrabold mb-6">할 일 추가</h1>
-  <%= render "form", lead_measure: @lead_measure, task: @task, members: @members, lead_measures: @lead_measures, jira_configured: @jira_configured, jira_projects: @jira_projects %>
+
+  <% if @jira_configured && @grouped_jira_issues.present? %>
+    <div class="flex gap-2 mb-5">
+      <button type="button" data-jira-toggle-target="tabManual" data-action="jira-toggle#showManual"
+              class="flex-1 h-10 rounded-xl text-sm font-bold transition-all border bg-indigo-50 text-indigo-600 border-indigo-200">
+        직접 입력
+      </button>
+      <button type="button" data-jira-toggle-target="tabJira" data-action="jira-toggle#showJira"
+              class="flex-1 h-10 rounded-xl text-sm font-bold transition-all border text-[#64748b] border-[#e2e6ed] hover:border-indigo-300">
+        Jira 티켓 가져오기
+      </button>
+    </div>
+  <% end %>
+
+  <!-- Manual task creation -->
+  <div data-jira-toggle-target="manualForm">
+    <%= render "form", lead_measure: @lead_measure, task: @task, members: @members, lead_measures: @lead_measures, jira_configured: @jira_configured, jira_projects: @jira_projects %>
+  </div>
+
+  <!-- Jira import section -->
+  <% if @jira_configured && @grouped_jira_issues.present? %>
+    <div class="hidden" data-jira-toggle-target="jiraSection">
+      <%= form_tag lead_measure_tasks_path(@lead_measure), method: :post do %>
+        <input type="hidden" name="jira_import" value="1">
+        <input type="hidden" name="lead_measure_id" value="<%= @lead_measure.id %>">
+
+        <div class="space-y-4">
+          <!-- Target selection -->
+          <div class="bg-white rounded-2xl border border-[#e2e6ed] p-5 space-y-4">
+            <h3 class="text-sm font-bold text-[#1a202c]">가져올 위치</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">연결 작업</label>
+                <%= select_tag "task[lead_measure_id]", options_from_collection_for_select(@lead_measures, :id, :title, @lead_measure.id),
+                    required: true,
+                    class: "w-full h-10 px-3 bg-white border border-[#e2e6ed] rounded-xl text-sm text-[#1a202c] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors appearance-none" %>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">담당자</label>
+                <%= select_tag "task[member_id]", options_from_collection_for_select(@members, :id, :name),
+                    prompt: "담당자 선택",
+                    required: true,
+                    class: "w-full h-10 px-3 bg-white border border-[#e2e6ed] rounded-xl text-sm text-[#1a202c] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors appearance-none" %>
+              </div>
+            </div>
+          </div>
+
+          <%
+            status_colors = {
+              "진행 중" => "bg-amber-50 text-amber-700 border-amber-200",
+              "해야 할 일" => "bg-blue-50 text-blue-700 border-blue-200",
+              "BACKLOG" => "bg-slate-50 text-slate-500 border-slate-200"
+            }
+          %>
+
+          <!-- Issue list grouped by status -->
+          <% @grouped_jira_issues.each do |status, issues| %>
+            <% color = status_colors[status] || "bg-slate-50 text-slate-500 border-slate-200" %>
+            <div class="bg-white rounded-2xl border border-[#e2e6ed] overflow-hidden">
+              <div class="px-5 py-3 border-b border-[#e2e6ed] flex items-center gap-2">
+                <span class="text-xs font-bold px-2 py-1 rounded-md border <%= color %>"><%= status %></span>
+                <span class="text-xs text-[#94a3b8]"><%= issues.size %>개</span>
+              </div>
+              <div class="divide-y divide-[#e2e6ed]">
+                <% issues.each do |issue| %>
+                  <% already_imported = @imported_keys.include?(issue[:key]) %>
+                  <label class="flex items-center gap-3 px-5 py-3.5 hover:bg-[#f8f9fb] transition-colors cursor-pointer <%= 'opacity-50' if already_imported %>">
+                    <input type="checkbox"
+                           name="issue_keys[]"
+                           value="<%= issue[:key] %>"
+                           <%= "disabled checked" if already_imported %>
+                           data-action="change->jira-toggle#updateCount"
+                           class="task-checkbox">
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-indigo-500 shrink-0"><%= issue[:key] %></span>
+                        <span class="text-[15px] text-[#1a202c] truncate"><%= issue[:summary] %></span>
+                      </div>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <span class="text-xs text-[#94a3b8]"><%= issue[:issue_type] %></span>
+                        <% if issue[:assignee_name] %>
+                          <span class="text-xs text-[#cbd5e1]">&middot;</span>
+                          <span class="text-xs text-[#94a3b8]"><%= issue[:assignee_name] %></span>
+                        <% end %>
+                      </div>
+                    </div>
+                    <% if already_imported %>
+                      <span class="text-xs font-semibold text-emerald-500 shrink-0">연결됨</span>
+                    <% end %>
+                  </label>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Submit -->
+          <div>
+            <button type="submit" data-jira-toggle-target="submitBtn"
+                    class="w-full h-12 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 active:scale-[0.98] transition-all cursor-pointer">
+              선택한 Jira 티켓 가져오기
+            </button>
+          </div>
+
+          <div class="text-center">
+            <a href="<%= root_path %>" class="text-sm font-semibold text-[#64748b] hover:text-[#334155] transition-colors">취소</a>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
   <% if @members.any? %>
     <div class="mt-5 pt-5 border-t border-[#e2e6ed]/50">

@@ -8,9 +8,15 @@ class TasksController < ApplicationController
     @lead_measures = @lead_measure.wig.lead_measures.current_week
     @jira_configured = JiraSetting.configured?
     @jira_projects = @jira_configured ? fetch_jira_projects : []
+    load_jira_issues if @jira_configured
   end
 
   def create
+    # Jira import mode
+    if params[:jira_import] == "1"
+      return jira_import
+    end
+
     selected_lm_id = task_params[:lead_measure_id].presence || params[:lead_measure_id]
     @lead_measure = LeadMeasure.find(selected_lm_id)
     @task = @lead_measure.tasks.new(task_params.except(:lead_measure_id))
@@ -145,5 +151,40 @@ class TasksController < ApplicationController
     Jira::IssueFetcher.new.projects
   rescue Jira::Error
     []
+  end
+
+  def load_jira_issues
+    fetcher = Jira::IssueFetcher.new
+    issues = fetcher.my_open_issues(project_key: params[:jira_project_key].presence)
+    @imported_keys = Task.jira_linked.pluck(:jira_issue_key)
+    status_order = ["진행 중", "해야 할 일", "BACKLOG"]
+    @grouped_jira_issues = issues.group_by { |i| i[:status] }.sort_by { |status, _| status_order.index(status) || 99 }
+  rescue Jira::Error
+    @grouped_jira_issues = []
+  end
+
+  def jira_import
+    issue_keys = params[:issue_keys] || []
+    lead_measure_id = params.dig(:task, :lead_measure_id).presence || params[:lead_measure_id]
+    member_id = params.dig(:task, :member_id)
+
+    if issue_keys.empty?
+      redirect_to new_lead_measure_task_path(params[:lead_measure_id]), alert: "가져올 Jira 티켓을 선택해주세요."
+      return
+    end
+
+    fetcher = Jira::IssueFetcher.new
+    lead_measure = LeadMeasure.find(lead_measure_id)
+    member = Member.find(member_id)
+    issues = issue_keys.map { |key| fetcher.find(key) }
+    imported = Jira::ImportService.new.import(
+      issues: issues,
+      lead_measure: lead_measure,
+      member: member
+    )
+
+    redirect_to root_path, notice: "#{imported.size}개 Jira 티켓을 가져왔습니다."
+  rescue Jira::Error => e
+    redirect_to new_lead_measure_task_path(params[:lead_measure_id]), alert: "Jira 오류: #{e.message}"
   end
 end

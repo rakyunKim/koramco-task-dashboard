@@ -1,6 +1,7 @@
 class Task < ApplicationRecord
   belongs_to :lead_measure
   belongs_to :member
+  has_many :jira_sync_logs, dependent: :destroy
 
   validates :title, presence: true
   validates :week_start_date, presence: true

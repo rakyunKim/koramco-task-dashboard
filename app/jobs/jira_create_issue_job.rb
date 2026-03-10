@@ -6,11 +6,14 @@ class JiraCreateIssueJob < ApplicationJob
     task = Task.find_by(id: task_id)
     return unless task && !task.jira_linked?
 
+    lead_measure_title = task.lead_measure&.title
+    summary = lead_measure_title.present? ? "[#{lead_measure_title}] #{task.title}" : task.title
+
     creator = Jira::IssueCreator.new
     result = creator.create(
       project_key: project_key,
-      summary: task.title,
-      issue_type: "Task"
+      summary: summary,
+      assignee_name: task.member&.name
     )
 
     task.update!(
