@@ -17,11 +17,11 @@ class Wig < ApplicationRecord
   end
 
   def total_lead_measures_count
-    current_week_lead_measures.size
+    lead_measures.size
   end
 
   def completed_lead_measures_count
-    current_week_lead_measures.count(&:completed?)
+    lead_measures.count(&:completed?)
   end
 
   def progress_percentage
