@@ -1,6 +1,4 @@
 require "net/http"
-require "json"
-require "uri"
 
 module Jira
   class Client
@@ -72,10 +70,4 @@ module Jira
       end
     end
   end
-
-  class Error < StandardError; end
-  class AuthenticationError < Error; end
-  class ForbiddenError < Error; end
-  class RateLimitError < Error; end
-  class ApiError < Error; end
 end
