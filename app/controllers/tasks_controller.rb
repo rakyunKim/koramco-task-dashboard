@@ -9,8 +9,9 @@ class TasksController < ApplicationController
   end
 
   def create
-    @lead_measure = LeadMeasure.find(params[:lead_measure_id])
-    @task = @lead_measure.tasks.new(task_params)
+    selected_lm_id = task_params[:lead_measure_id].presence || params[:lead_measure_id]
+    @lead_measure = LeadMeasure.find(selected_lm_id)
+    @task = @lead_measure.tasks.new(task_params.except(:lead_measure_id))
     @task.week_start_date ||= Date.current.beginning_of_week(:monday)
     if @task.save
       redirect_to root_path, notice: "할 일이 추가되었습니다."
@@ -30,10 +31,10 @@ class TasksController < ApplicationController
 
   def update
     @task = Task.find(params[:id])
-    @lead_measure = @task.lead_measure
     if @task.update(task_params)
       redirect_to root_path, notice: "할 일이 수정되었습니다."
     else
+      @lead_measure = @task.lead_measure
       @members = Member.ordered
       @lead_measures = @lead_measure.wig.lead_measures.current_week
       render :edit, status: :unprocessable_entity
