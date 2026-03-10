@@ -5,7 +5,7 @@ class TasksController < ApplicationController
       week_start_date: Date.current.beginning_of_week(:monday)
     )
     @members = Member.ordered
-    @lead_measures = @lead_measure.wig.lead_measures.current_week
+    @lead_measures = @lead_measure.wig.lead_measures.where("week_start_date >= ?", Date.current.beginning_of_week(:monday)).order(:week_start_date)
     @jira_configured = JiraSetting.configured?
     @jira_projects = @jira_configured ? fetch_jira_projects : []
     load_jira_issues if @jira_configured
@@ -20,7 +20,7 @@ class TasksController < ApplicationController
     selected_lm_id = task_params[:lead_measure_id].presence || params[:lead_measure_id]
     @lead_measure = LeadMeasure.find(selected_lm_id)
     @task = @lead_measure.tasks.new(task_params.except(:lead_measure_id))
-    @task.week_start_date ||= Date.current.beginning_of_week(:monday)
+    @task.week_start_date = @lead_measure.week_start_date
     if @task.save
       if params[:create_jira_issue] == "1" && JiraSetting.configured? && params[:jira_project_key].present?
         JiraCreateIssueJob.perform_later(@task.id, params[:jira_project_key])
@@ -28,7 +28,7 @@ class TasksController < ApplicationController
       redirect_to root_path, notice: "할 일이 추가되었습니다."
     else
       @members = Member.ordered
-      @lead_measures = @lead_measure.wig.lead_measures.current_week
+      @lead_measures = @lead_measure.wig.lead_measures.where("week_start_date >= ?", Date.current.beginning_of_week(:monday)).order(:week_start_date)
       render :new, status: :unprocessable_entity
     end
   end
@@ -37,7 +37,7 @@ class TasksController < ApplicationController
     @task = Task.find(params[:id])
     @lead_measure = @task.lead_measure
     @members = Member.ordered
-    @lead_measures = @lead_measure.wig.lead_measures.current_week
+    @lead_measures = @lead_measure.wig.lead_measures.where("week_start_date >= ?", Date.current.beginning_of_week(:monday)).order(:week_start_date)
   end
 
   def update
@@ -47,7 +47,7 @@ class TasksController < ApplicationController
     else
       @lead_measure = @task.lead_measure
       @members = Member.ordered
-      @lead_measures = @lead_measure.wig.lead_measures.current_week
+      @lead_measures = @lead_measure.wig.lead_measures.where("week_start_date >= ?", Date.current.beginning_of_week(:monday)).order(:week_start_date)
       render :edit, status: :unprocessable_entity
     end
   end

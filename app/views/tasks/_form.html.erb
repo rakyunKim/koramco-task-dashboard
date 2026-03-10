@@ -9,8 +9,16 @@
 
   <div>
     <label class="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">연결 작업</label>
-    <%= f.select :lead_measure_id, lead_measures.map { |lm| [lm.title, lm.id] }, {},
-        class: "w-full h-12 px-4 bg-white border border-[#e2e6ed] rounded-xl text-[#1a202c] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors appearance-none" %>
+    <%
+      current_monday = Date.current.beginning_of_week(:monday)
+      lm_options = lead_measures.map { |lm|
+        week_label = lm.week_start_date == current_monday ? "이번주" : "#{lm.week_start_date.strftime('%-m/%-d')}주"
+        ["[#{week_label}] #{lm.title}", lm.id, { "data-week" => lm.week_start_date.to_s }]
+      }
+    %>
+    <%= f.select :lead_measure_id, lm_options, {},
+        class: "w-full h-12 px-4 bg-white border border-[#e2e6ed] rounded-xl text-[#1a202c] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors appearance-none",
+        onchange: "var opt = this.options[this.selectedIndex]; var w = opt.getAttribute('data-week'); if(w) document.getElementById('task_week_start_date').value = w;" %>
   </div>
 
   <div>

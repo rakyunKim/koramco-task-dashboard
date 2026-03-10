@@ -33,7 +33,14 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">연결 작업</label>
-                <%= select_tag "task[lead_measure_id]", options_from_collection_for_select(@lead_measures, :id, :title, @lead_measure.id),
+                <%
+                  current_monday = Date.current.beginning_of_week(:monday)
+                  jira_lm_options = @lead_measures.map { |lm|
+                    week_label = lm.week_start_date == current_monday ? "이번주" : "#{lm.week_start_date.strftime('%-m/%-d')}주"
+                    ["[#{week_label}] #{lm.title}", lm.id]
+                  }
+                %>
+                <%= select_tag "task[lead_measure_id]", options_for_select(jira_lm_options, @lead_measure.id),
                     required: true,
                     class: "w-full h-10 px-3 bg-white border border-[#e2e6ed] rounded-xl text-sm text-[#1a202c] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors appearance-none" %>
               </div>
