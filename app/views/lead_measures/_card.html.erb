@@ -2,24 +2,24 @@
   pct = lead_measure.progress_percentage
   color = lead_measure.progress_color
   bar_color = case color
-              when "green" then "bg-emerald-400"
-              when "yellow" then "bg-amber-400"
-              else "bg-rose-400"
+              when "green" then "bg-emerald-500"
+              when "yellow" then "bg-amber-500"
+              else "bg-rose-500"
               end
   text_color = case color
-               when "green" then "text-emerald-400"
-               when "yellow" then "text-amber-400"
-               else "text-rose-400"
+               when "green" then "text-emerald-600"
+               when "yellow" then "text-amber-600"
+               else "text-rose-500"
                end
   badge_bg = case color
-             when "green" then "bg-emerald-500/15"
-             when "yellow" then "bg-amber-500/15"
-             else "bg-rose-500/15"
+             when "green" then "bg-emerald-50"
+             when "yellow" then "bg-amber-50"
+             else "bg-rose-50"
              end
 %>
 
 <div id="lead_measure_<%= lead_measure.id %>" class="animate-fade-in-up">
-  <div class="card p-4 lg:p-5 hover:border-[#2a3d5e] transition-colors">
+  <div class="card p-4 lg:p-5 hover:border-[#d0d5de] transition-colors">
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center gap-3 min-w-0 flex-1">
         <!-- Score Badge -->
@@ -27,20 +27,20 @@
           <span class="text-sm font-extrabold tabular-nums <%= text_color %>"><%= pct.to_i %></span>
         </div>
         <div class="min-w-0">
-          <h3 class="text-[15px] font-bold text-white truncate"><%= lead_measure.title %></h3>
-          <p class="text-[13px] text-[#8896b3] tabular-nums font-medium mt-0.5">
-            <span class="text-[#c5cfe0] font-semibold"><%= lead_measure.completed_tasks_count %></span> / <%= lead_measure.total_tasks_count %> 완료
+          <h3 class="text-[15px] font-bold text-[#1a202c] truncate"><%= lead_measure.title %></h3>
+          <p class="text-[13px] text-[#64748b] tabular-nums font-medium mt-0.5">
+            <span class="text-[#334155] font-semibold"><%= lead_measure.completed_tasks_count %></span> / <%= lead_measure.total_tasks_count %> 완료
           </p>
         </div>
       </div>
-      <a href="<%= edit_wig_lead_measure_path(lead_measure.wig, lead_measure) %>" class="text-[#5d6d8e] hover:text-[#8896b3] transition-colors p-1.5 -mr-1 shrink-0">
+      <a href="<%= edit_wig_lead_measure_path(lead_measure.wig, lead_measure) %>" class="text-[#94a3b8] hover:text-[#64748b] transition-colors p-1.5 -mr-1 shrink-0">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
         </svg>
       </a>
     </div>
     <!-- Progress bar -->
-    <div class="h-2 bg-[#172035] rounded-full overflow-hidden">
+    <div class="h-2 bg-[#e8ebf0] rounded-full overflow-hidden">
       <div class="h-full <%= bar_color %> rounded-full animate-progress transition-all duration-500"
            style="width: <%= pct %>%">
       </div>

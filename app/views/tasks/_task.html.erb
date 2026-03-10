@@ -5,13 +5,13 @@
            <%= "checked" if task.completed? %>
            data-action="change->task-toggle#toggle">
     <div class="flex-1 min-w-0">
-      <span class="text-[15px] leading-snug <%= task.completed? ? 'line-through text-[#5d6d8e]' : 'text-[#e2e8f3]' %> transition-colors">
-        <span class="text-[12px] font-semibold <%= task.completed? ? 'text-[#3d4a63]' : 'text-indigo-400/70' %>">[<%= task.lead_measure.title %>]</span>
+      <span class="text-[15px] leading-snug <%= task.completed? ? 'line-through text-[#94a3b8]' : 'text-[#1a202c]' %> transition-colors">
+        <span class="text-[12px] font-semibold <%= task.completed? ? 'text-[#cbd5e1]' : 'text-indigo-500/70' %>">[<%= task.lead_measure.title %>]</span>
         <%= task.title %>
       </span>
     </div>
     <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-      <a href="<%= edit_lead_measure_task_path(task.lead_measure, task) %>" data-turbo-frame="_top" class="text-[#5d6d8e] hover:text-[#8896b3] p-1.5">
+      <a href="<%= edit_lead_measure_task_path(task.lead_measure, task) %>" data-turbo-frame="_top" class="text-[#94a3b8] hover:text-[#64748b] p-1.5">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
         </svg>

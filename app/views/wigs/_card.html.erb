@@ -2,9 +2,9 @@
   pct = wig.progress_percentage
   color = wig.progress_color
   gradient = case color
-             when "green" then "from-emerald-400 to-teal-400"
-             when "yellow" then "from-amber-400 to-orange-400"
-             else "from-rose-400 to-pink-400"
+             when "green" then "from-emerald-500 to-teal-500"
+             when "yellow" then "from-amber-500 to-orange-500"
+             else "from-rose-500 to-pink-500"
              end
   glow = case color
          when "green" then "shadow-emerald-500/8"
@@ -12,11 +12,11 @@
          else "shadow-rose-500/8"
          end
   text_color = case color
-               when "green" then "text-emerald-400"
-               when "yellow" then "text-amber-400"
-               else "text-rose-400"
+               when "green" then "text-emerald-600"
+               when "yellow" then "text-amber-600"
+               else "text-rose-500"
                end
-  bar_track = "bg-[#172035]"
+  bar_track = "bg-[#e8ebf0]"
 %>
 
 <div id="wig_card" class="animate-fade-in-up">
@@ -26,13 +26,13 @@
       <div class="p-5 lg:p-7 lg:flex-1">
         <div class="flex items-start justify-between mb-5 lg:mb-6">
           <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold text-[#8896b3] uppercase tracking-widest mb-1.5">달성해야 하는 목표</p>
-            <h2 class="text-lg lg:text-xl font-extrabold tracking-tight text-white truncate"><%= wig.title %></h2>
+            <p class="text-xs font-bold text-[#64748b] uppercase tracking-widest mb-1.5">달성해야 하는 목표</p>
+            <h2 class="text-lg lg:text-xl font-extrabold tracking-tight text-[#1a202c] truncate"><%= wig.title %></h2>
             <% if wig.description.present? %>
-              <p class="text-sm text-[#8896b3] mt-1.5 line-clamp-2 leading-relaxed"><%= wig.description %></p>
+              <p class="text-sm text-[#64748b] mt-1.5 line-clamp-2 leading-relaxed"><%= wig.description %></p>
             <% end %>
           </div>
-          <a href="<%= edit_wig_path(wig) %>" class="text-[#5d6d8e] hover:text-[#8896b3] transition-colors p-1.5 -mt-1 -mr-1 shrink-0">
+          <a href="<%= edit_wig_path(wig) %>" class="text-[#94a3b8] hover:text-[#64748b] transition-colors p-1.5 -mt-1 -mr-1 shrink-0">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
             </svg>
@@ -47,28 +47,28 @@
         </div>
 
         <% if wig.deadline.present? %>
-          <p class="text-xs text-[#5d6d8e] mt-3 font-medium">
+          <p class="text-xs text-[#94a3b8] mt-3 font-medium">
             마감일 <%= wig.deadline.strftime("%Y.%m.%d") %>
             <% days_left = (wig.deadline - Date.current).to_i %>
             <% if days_left > 0 %>
-              <span class="text-[#8896b3]">(D-<%= days_left %>)</span>
+              <span class="text-[#64748b]">(D-<%= days_left %>)</span>
             <% elsif days_left == 0 %>
-              <span class="text-amber-400 font-bold">D-Day</span>
+              <span class="text-amber-600 font-bold">D-Day</span>
             <% else %>
-              <span class="text-rose-400 font-bold">(D+<%= days_left.abs %>)</span>
+              <span class="text-rose-500 font-bold">(D+<%= days_left.abs %>)</span>
             <% end %>
           </p>
         <% end %>
       </div>
 
       <!-- Right: Score Panel -->
-      <div class="px-5 pb-5 lg:p-0 lg:w-48 xl:w-56 lg:border-l lg:border-[#1e2d4a]/50 lg:flex lg:flex-col lg:items-center lg:justify-center bg-[#0e1525]/50">
+      <div class="px-5 pb-5 lg:p-0 lg:w-48 xl:w-56 lg:border-l lg:border-[#e2e6ed] lg:flex lg:flex-col lg:items-center lg:justify-center bg-[#f8f9fb]">
         <div class="flex items-end gap-2 lg:flex-col lg:items-center lg:gap-0">
           <span class="font-display text-[42px] lg:text-5xl xl:text-[56px] font-extrabold tabular-nums <%= text_color %> leading-none"><%= pct.to_i %></span>
-          <span class="text-lg font-bold text-[#5d6d8e] mb-1 lg:mb-0 lg:-mt-1">%</span>
+          <span class="text-lg font-bold text-[#94a3b8] mb-1 lg:mb-0 lg:-mt-1">%</span>
         </div>
-        <p class="text-[13px] text-[#8896b3] mt-1 lg:mt-3 tabular-nums font-medium">
-          <span class="font-bold text-[#c5cfe0]"><%= wig.completed_lead_measures_count %></span> / <%= wig.total_lead_measures_count %> 작업 완료
+        <p class="text-[13px] text-[#64748b] mt-1 lg:mt-3 tabular-nums font-medium">
+          <span class="font-bold text-[#334155]"><%= wig.completed_lead_measures_count %></span> / <%= wig.total_lead_measures_count %> 작업 완료
         </p>
       </div>
     </div>

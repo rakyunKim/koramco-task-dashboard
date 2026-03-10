@@ -2,7 +2,7 @@
   <h1 class="text-xl font-extrabold mb-6">할 일 수정</h1>
   <%= render "form", lead_measure: @lead_measure, task: @task, members: @members, lead_measures: @lead_measures %>
 
-  <div class="mt-6 pt-6 border-t border-slate-800/40">
+  <div class="mt-6 pt-6 border-t border-[#e2e6ed]">
     <%= button_to lead_measure_task_path(@lead_measure, @task), method: :delete,
         class: "text-sm text-rose-500 hover:text-rose-400 font-semibold transition-colors",
         data: { turbo_confirm: "정말 삭제하시겠습니까?" } do %>
