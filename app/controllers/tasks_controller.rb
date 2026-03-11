@@ -23,7 +23,11 @@ class TasksController < ApplicationController
     @task.week_start_date = @lead_measure.week_start_date
     if @task.save
       if params[:create_jira_issue] == "1" && JiraSetting.configured? && params[:jira_project_key].present?
-        JiraCreateIssueJob.perform_later(@task.id, params[:jira_project_key])
+        begin
+          JiraCreateIssueJob.perform_now(@task.id, params[:jira_project_key])
+        rescue StandardError
+          # Jira 실패해도 task 생성은 유지
+        end
       end
       redirect_to root_path, notice: "할 일이 추가되었습니다."
     else
