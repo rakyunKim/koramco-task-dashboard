@@ -23,7 +23,13 @@ class LeadMeasuresController < ApplicationController
 
   def update
     @lead_measure = @wig.lead_measures.find(params[:id])
+    week_changed = lead_measure_params[:week_start_date].present? &&
+                   lead_measure_params[:week_start_date].to_s != @lead_measure.week_start_date.to_s
     if @lead_measure.update(lead_measure_params)
+      if week_changed
+        @lead_measure.tasks.update_all(week_start_date: @lead_measure.week_start_date)
+        @lead_measure.recalculate_current_value!
+      end
       redirect_to root_path, notice: "작업이 수정되었습니다."
     else
       render :edit, status: :unprocessable_entity
