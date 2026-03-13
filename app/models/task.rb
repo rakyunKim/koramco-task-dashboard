@@ -21,6 +21,44 @@ class Task < ApplicationRecord
 
   delegate :name, to: :member, prefix: :assignee
 
+  # 지난 주 미완료 태스크를 현재 주로 이월
+  def self.rollover_incomplete!
+    current_monday = Date.current.beginning_of_week(:monday)
+    incomplete_tasks = where(completed: false)
+                         .where("week_start_date < ?", current_monday)
+                         .includes(:lead_measure)
+
+    return if incomplete_tasks.empty?
+
+    ActiveRecord::Base.transaction do
+      # lead_measure별로 그룹핑하여 현재 주 lead_measure 찾거나 생성
+      lm_mapping = {}
+      incomplete_tasks.group_by(&:lead_measure).each do |old_lm, _tasks|
+        current_lm = LeadMeasure.find_or_create_by!(
+          wig_id: old_lm.wig_id,
+          title: old_lm.title,
+          week_start_date: current_monday
+        ) do |lm|
+          lm.weekly_target = old_lm.weekly_target
+          lm.unit = old_lm.unit
+        end
+        lm_mapping[old_lm.id] = current_lm
+      end
+
+      # 태스크 이동
+      incomplete_tasks.each do |task|
+        current_lm = lm_mapping[task.lead_measure_id]
+        task.update_columns(
+          lead_measure_id: current_lm.id,
+          week_start_date: current_monday
+        )
+      end
+
+      # lead_measure 값 재계산
+      lm_mapping.values.uniq.each(&:recalculate_current_value!)
+    end
+  end
+
   def jira_linked?
     jira_issue_key.present?
   end

@@ -1,5 +1,7 @@
 class DashboardController < ApplicationController
   def show
+    Task.rollover_incomplete!
+
     @wig = Wig.active.includes(lead_measures: :tasks).first
     if @wig
       monday = Date.current.beginning_of_week(:monday)
